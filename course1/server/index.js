@@ -1,12 +1,31 @@
 const express = require('express');
 const passport = require('passport');
 const GoogleStategy = require('passport-google-oauth20').Strategy;
+const keys = require('./config/keys');
 
 const app = express();
 
-// clientID: 980600566381-a62ar9abe4lim2pvhmlo8dcdt21cphbd.apps.googleusercontent.com
-// clientSecred: v_tEc7MhbP182kzsD19gZB5F
-passport.use(new GoogleStategy());
+passport.use(
+    new GoogleStategy(
+        {
+            clientID: keys.googleClientID,
+            clientSecret: keys.googleClientSecret,
+            callbackURL:'/auth/google/callback'
+        },
+        (accessToken, refreshToken, profile, done) => {
+            console.log('access Token', accessToken);
+            console.log('refresh Token', refreshToken);
+            console.log('profile', profile);
+        }
+    ));
+
+app.get(
+    '/auth/google',
+    passport.authenticate('google', {
+        scope: ['profile', 'email']
+    }));
+
+app.get('/auth/google/callback', passport.authenticate('google'));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT);
