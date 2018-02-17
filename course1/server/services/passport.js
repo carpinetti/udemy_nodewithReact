@@ -5,6 +5,17 @@ const keys = require('../config/keys.js');
 
 const Users = mongoose.model('users');
 
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
+
+passport.deserializeUser((id, done) => {
+    Users.findById(id)
+        .then(user => {
+            done(null, user);
+        })
+})
+
 passport.use(
     new GoogleStategy(
         {
